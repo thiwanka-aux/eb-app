@@ -1,0 +1,63 @@
+service: docuSign-service
+
+provider:
+  name: aws
+  stage: int
+  region: eu-west-2
+
+plugins:
+  - serverless-plugin-elastic-beanstalk
+
+custom:
+  elastic-beanstalk:
+    variables:
+      applicationName: docuSignApp
+      environmentName: CartApplicationEvironmentName
+    key: ${opt:key}
+    file:
+      prefix: bundles
+      name: bundle-latest.zip
+    platform: nodejs
+    build:
+      babel: true
+      sourceMaps: true
+      include:
+        - bin/**
+        - node_modules/**
+        - public/**
+        - routes/**
+        - views/**
+        - app.js
+        - package.json
+
+resources:
+  Resources:
+    DocuSignApplication:
+      Type: AWS::ElasticBeanstalk::Application
+      Properties:
+        ApplicationName: ${self:service}
+        Description: docusign application
+    CartEnvironment:
+      Type: AWS::ElasticBeanstalk::Environment
+      Properties:
+        ApplicationName:
+          Ref: DocuSignApplication
+        Description: docusign environment
+        SolutionStackName: '64bit Amazon Linux 2017.03 v4.4.5 running Node.js'
+        OptionSettings:
+          - Namespace: aws:elasticbeanstalk:container:nodejs
+            OptionName: NodeVersion
+            Value: '7.6.0'
+          - Namespace: aws:elasticbeanstalk:environment
+            OptionName: EnvironmentType
+            Value: SingleInstance
+
+  Outputs:
+    CartApplicationName:
+      Description: Cart application name
+      Value:
+        Ref: CartApplication
+    CartApplicationEvironmentName:
+      Description: Cart environment name
+      Value:
+        Ref: CartEnvironment
