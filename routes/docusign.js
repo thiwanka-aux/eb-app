@@ -31,9 +31,9 @@ const bustHeaders = (request, response, next) => {
   next();
 };
 
-router.post('/', bustHeaders, xmlparser(xmlOptions), async (req, res, next) => {
+router.post('/', bustHeaders, async (req, res, next) => {
   try {
-    console.log('req log >>>>>>>', JSON.stringify(req.body));
+    console.log('req log >>>>>>>', req.body);
     res.send('respond with a resource');
   }catch ( e ) {
     res.send(e);
