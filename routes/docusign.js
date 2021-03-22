@@ -9,10 +9,8 @@ AWS.config.update({region: 'eu-west-2'});
 const xmlOptions = {
   charkey: 'value',
   trim: false,
-  explicitRoot: false,
   explicitArray: false,
   normalizeTags: false,
-  mergeAttrs: true,
 };
 
 // Create S3 service object
@@ -55,14 +53,16 @@ router.post('/', bustHeaders, xmlparser(xmlOptions), async (req, res, next) => {
     if (req.app.isXml) {
       res.setHeader('Content-Type', 'application/xml');
     }
-    const xmlParsedObj = builder.buildObject({ 'DocuSignEnvelopeInformation': req.body });
+
+    const xmlParsedObj = builder.buildObject( req.body);
+    console.log('xmlParsedObj log >>>>>>>', xmlParsedObj)
     const s3put = await s3.putObject({
       Bucket: 'docusign-temp',
       Key: '2asd23.xml',
       Body: xmlParsedObj,
       ContentType: 'application/xml'
     }).promise()
-    res.status(200).send(s3put);
+    res.status(200).send(xmlParsedObj);
   }catch ( e ) {
     res.send(e);
   }
