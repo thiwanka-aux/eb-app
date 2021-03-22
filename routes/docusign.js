@@ -2,6 +2,7 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const xmlparser = require ('express-xml-bodyparser');
 const xml = require ('xml2js');
+const uuid = require('uuid');
 
 // Set the region
 AWS.config.update({region: 'eu-west-2'});
@@ -19,13 +20,11 @@ const router = express.Router();
 
 const bustHeaders = (request, response, next) => {
   request.app.isXml = false;
-
   if (request.headers['content-type'] === 'application/xml'
       || request.headers['accept'] === 'application/xml'
   ) {
     request.app.isXml = true;
   }
-
   next();
 };
 
@@ -33,19 +32,24 @@ const builder = new xml.Builder({
   renderOpts: { 'pretty': false }
 });
 
-const buildResponse = (response, statusCode, data, preTag) => {
-  response.format({
-    'application/json': () => {
-      response.status(statusCode).json(data);
-    },
-    'application/xml': () => {
-      response.status(statusCode).send(builder.buildObject({ [preTag]: data }));
-    },
-    'default': () => {
-      // log the request and respond with 406
-      response.status(406).send('Not Acceptable');
-    }
-  });
+const verifyWebhook = async req => {
+  const keys = [];
+  keys.push(req.headers['x-docusign-signature-1']);
+  keys.push(req.headers['x-docusign-signature-2']);
+
+  console.log('expected_signature log >>>>>>>', keys);
+
+  const crypto = require('crypto');
+  const hmac = crypto.createHmac('sha256', 'KpiiPykYOaJL/gVwKoMU1s5mhoBfAqOEzTJ/YYyKr5I=');
+  console.log('req.body log >>>>>>>', req.body)
+  hmac.write(req.body);
+  hmac.end();
+  const computedKey = hmac.read().toString('base64');
+  console.log('computedKey log >>>>>>>', computedKey);
+  if (!keys.includes(computedKey)) {
+    console.log('webhook signature is not valid.');
+    throw new Error('webhook authentication failed.');
+  }
 };
 
 router.post('/', bustHeaders, xmlparser(xmlOptions), async (req, res, next) => {
@@ -54,15 +58,19 @@ router.post('/', bustHeaders, xmlparser(xmlOptions), async (req, res, next) => {
       res.setHeader('Content-Type', 'application/xml');
     }
 
-    const xmlParsedObj = builder.buildObject( req.body);
-    console.log('xmlParsedObj log >>>>>>>', xmlParsedObj)
+    // validate webhook
+    console.log('verifyWebhook called .....');
+ //   await verifyWebhook(req);
+    console.log('verifyWebhook end .....');
+
+    const xmlParsedObj = builder.buildObject(req.body);
     const s3put = await s3.putObject({
       Bucket: 'docusign-temp',
-      Key: '2asd23.xml',
+      Key: `${uuid.v4()}.xml`,
       Body: xmlParsedObj,
       ContentType: 'application/xml'
     }).promise()
-    res.status(200).send(xmlParsedObj);
+    res.status(200).send();
   }catch ( e ) {
     res.send(e);
   }
