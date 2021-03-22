@@ -9,7 +9,7 @@ const router = express.Router();
 /* GET users listing. */
 router.post('/', async (req, res, next) => {
   try {
-    console.log('req log >>>>>>>', req);
+    console.log('req log >>>>>>>', JSON.stringify(req.body));
     res.send('respond with a resource');
   }catch ( e ) {
     res.send(e);
