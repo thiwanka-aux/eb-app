@@ -12,6 +12,7 @@ const router = express.Router();
 router.get('/',async (req, res, next) => {
   try {
     const data  = await s3.listBuckets().promise();
+    console.log('data log >>>>>>>', data)
     res.json({title:'working', message: 'response from docusign testing server', data});
   }catch ( e ) {
     res.json({error: e});
