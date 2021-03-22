@@ -31,10 +31,38 @@ const bustHeaders = (request, response, next) => {
   next();
 };
 
-router.post('/', bustHeaders, async (req, res, next) => {
+const builder = new xml.Builder({
+  renderOpts: { 'pretty': false }
+});
+
+const buildResponse = (response, statusCode, data, preTag) => {
+  response.format({
+    'application/json': () => {
+      response.status(statusCode).json(data);
+    },
+    'application/xml': () => {
+      response.status(statusCode).send(builder.buildObject({ [preTag]: data }));
+    },
+    'default': () => {
+      // log the request and respond with 406
+      response.status(406).send('Not Acceptable');
+    }
+  });
+};
+
+router.post('/', bustHeaders, xmlparser(xmlOptions), async (req, res, next) => {
   try {
-    console.log('req log >>>>>>>', req.body);
-    res.send('respond with a resource');
+    if (req.app.isXml) {
+      res.setHeader('Content-Type', 'application/xml');
+    }
+    const xmlParsedObj = builder.buildObject({ 'DocuSignEnvelopeInformation': req.body });
+    const s3put = await s3.putObject({
+      Bucket: 'docusign-temp',
+      Key: '2asd23.xml',
+      Body: xmlParsedObj,
+      ContentType: 'application/xml'
+    }).promise()
+    res.status(200).send(s3put);
   }catch ( e ) {
     res.send(e);
   }
