@@ -52,7 +52,11 @@ const verifyWebhook = async req => {
   }
 };
 
-router.post('/', bustHeaders, xmlparser(xmlOptions), async (req, res, next) => {
+router.post('/', (req, res, next) => {
+ const sXML = req.body.toString()
+    req.body = sXML
+    next()
+    }, async (req, res, next) => {
   try {
     if (req.app.isXml) {
       res.setHeader('Content-Type', 'application/xml');
@@ -61,13 +65,13 @@ router.post('/', bustHeaders, xmlparser(xmlOptions), async (req, res, next) => {
     // validate webhook
     console.log('verifyWebhook called .....');
  //   await verifyWebhook(req);
-    console.log('verifyWebhook end .....');
+    console.log('verifyWebhook end .....', req.body);
 
     const xmlParsedObj = builder.buildObject(req.body);
     const s3put = await s3.putObject({
       Bucket: 'docusign-temp',
       Key: `${uuid.v4()}.xml`,
-      Body: xmlParsedObj,
+      Body: req.body,
       ContentType: 'application/xml'
     }).promise()
     res.status(200).send();
