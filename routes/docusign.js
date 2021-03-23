@@ -64,7 +64,7 @@ router.post('/', (req, res, next) => {
 
     // validate webhook
     console.log('verifyWebhook called .....');
- //   await verifyWebhook(req);
+    await verifyWebhook(req);
     console.log('verifyWebhook end .....', req.body);
 
     const xmlParsedObj = builder.buildObject(req.body);
