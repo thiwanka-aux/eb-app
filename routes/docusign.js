@@ -53,8 +53,8 @@ const verifyWebhook = async req => {
 };
 
 router.post('/', (req, res, next) => {
- const sXML = req.body.toString()
-    req.body = sXML
+ const sXML = req.body.toString().trim();
+    req.body = sXML;
     next()
     }, async (req, res, next) => {
   try {
