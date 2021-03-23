@@ -65,7 +65,7 @@ router.post('/', (req, res, next) => {
     // validate webhook
     console.log('verifyWebhook called .....');
     await verifyWebhook(req);
-    console.log('verifyWebhook end .....', req.body);
+    console.log('verifyWebhook end .....');
 
     const xmlParsedObj = builder.buildObject(req.body);
     const s3put = await s3.putObject({
@@ -76,7 +76,7 @@ router.post('/', (req, res, next) => {
     }).promise()
     res.status(200).send();
   }catch ( e ) {
-    res.send(e);
+    res.status(400).send(e.message);
   }
 });
 
