@@ -30,8 +30,6 @@ const verifyWebhook = async req => {
 router.post('/', async (req, res) => {
   try {
     // validate webhook
-    console.log('router...',req.body.toString());
-    console.log('====================================================================...');
     console.log('start verifying webhook...');
     await verifyWebhook(req);
     console.log('webhook verification successfully completed...');
