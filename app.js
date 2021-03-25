@@ -8,7 +8,7 @@ const app = express();
 console.log('start urlencoded =============================================');
 app.use(express.urlencoded({limit: '50mb', extended: false }));
 console.log('end urlencoded =============================================');
-app.use('/', indexRouter);
+app.use('/',express.json(), indexRouter);
 
 app.use('/docusign', (req, _, next)=>{
   console.log('incoming request')
