@@ -16,7 +16,7 @@ app.use('/docusign', (req, _, next)=>{
 console.log(req.headers);
   console.log('========================================================================');
   console.log(req.body);
-  next()}, express.raw({ type: 'text/xml',limit: '15mb'}), docusignRouter);
+  next()}, express.raw({ type: 'text/xml',limit: '50mb'}), docusignRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
