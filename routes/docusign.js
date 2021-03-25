@@ -30,16 +30,19 @@ const verifyWebhook = async req => {
 router.post('/', async (req, res) => {
   try {
     // validate webhook
-    console.log('verifyWebhook called .....');
+    console.log('router...',req.body.toString());
+    console.log('====================================================================...');
+    console.log('start verifying webhook...');
     await verifyWebhook(req);
-    console.log('verifyWebhook end .....');
+    console.log('webhook verification successfully completed...');
 
-    const s3put = await s3.putObject({
+    const s3putRes = await s3.putObject({
       Bucket: 'docusign-temp',
       Key: `${uuid.v4()}.xml`,
       Body: req.body.toString(),
       ContentType: 'application/xml'
-    }).promise()
+    }).promise();
+    console.log('s3putRes log >>>>>>>', s3putRes)
     res.status(200).send();
   }catch ( e ) {
     res.status(400).send(e.message);
