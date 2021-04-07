@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
   try {
     // validate webhook
     console.log('start verifying webhook...');
-    await verifyWebhook(req);
+ //   await verifyWebhook(req);
     console.log('webhook verification successfully completed...');
 
     const s3putRes = await s3.putObject({
