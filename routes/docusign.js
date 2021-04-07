@@ -3,6 +3,8 @@ const AWS = require('aws-sdk');
 const uuid = require('uuid');
 const crypto = require('crypto');
 
+const Bucket = process.env.DOCUSIGN_BUCKET;
+
 // Set the region
 AWS.config.update({region: 'eu-west-2'});
 
@@ -35,7 +37,7 @@ router.post('/', async (req, res) => {
     console.log('webhook verification successfully completed...');
 
     const s3putRes = await s3.putObject({
-      Bucket: 'docusign-temp',
+      Bucket,
       Key: `${uuid.v4()}.xml`,
       Body: req.body.toString(),
       ContentType: 'application/xml'
